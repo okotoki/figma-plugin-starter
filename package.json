@@ -7,21 +7,28 @@
   "license": "BSD-3",
   "private": true,
   "scripts": {
-    "dev": "NODE_ENV=development webpack --mode=development --watch",
+    "dev": "cross-env NODE_OPTIONS=--max_old_space_size=8192 NODE_ENV=development webpack --mode=development --watch",
     "build": "NODE_ENV=production tsc && webpack --mode=production"
   },
   "dependencies": {
+    "@types/debug": "^4.1.5",
     "@types/figma": "^1.0.1",
-    "@types/node": "^12.12.7",
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
+    "debug": "^4.1.1",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.7",
     "@types/webpack": "^4.39.8",
+    "cross-env": "^6.0.3",
     "css-loader": "^3.2.0",
+    "dotenv-webpack": "^1.7.0",
     "html-webpack-inline-source-plugin": "^0.0.10",
     "html-webpack-plugin": "^3.2.0",
     "prettier": "^1.19.1",
-    "react": "^16.12.0",
-    "react-dom": "^16.12.0",
+    "raw-loader": "^3.1.0",
     "style-loader": "^1.0.0",
     "ts-loader": "^6.2.1",
     "ts-node": "^8.5.2",
@@ -33,6 +40,8 @@
     "typescript": "^3.7.2",
     "url-loader": "^2.2.0",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.10"
+    "webpack-bundle-analyzer": "^3.6.0",
+    "webpack-cli": "^3.3.10",
+    "worker-loader": "^2.0.0"
   }
 }
