@@ -1,14 +1,17 @@
+import * as Dotenv from 'dotenv-webpack'
 import * as HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin'
 import * as HtmlWebpackPlugin from 'html-webpack-plugin'
 import * as path from 'path'
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin'
 import { TypedCssModulesPlugin } from 'typed-css-modules-webpack-plugin'
-import webpack from 'webpack'
+import * as webpack from 'webpack'
+import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 
 const createConfig = (
-  env: any,
+  _: any,
   argv: webpack.Configuration
 ): webpack.Configuration => {
+  const isProd = argv.mode === 'production'
   return {
     mode: argv.mode,
     devtool: false,
@@ -23,6 +26,15 @@ const createConfig = (
     },
     module: {
       rules: [
+        {
+          test: /\.worker\.ts$/,
+          loader: [
+            {
+              loader: 'worker-loader',
+              options: { inline: true }
+            }
+          ]
+        },
         { test: /\.tsx?$/, use: 'ts-loader', exclude: /node_modules/ },
         {
           test: /\.css$/,
@@ -49,7 +61,15 @@ const createConfig = (
       plugins: [new TsconfigPathsPlugin()]
     },
     plugins: [
-      // new webpack.EnvironmentPlugin(["NODE_ENV", "API_ROOT", "API_KEY"]),
+      isProd
+        ? new BundleAnalyzerPlugin()
+        : () => {
+            /* */
+          },
+      new webpack.EnvironmentPlugin({
+        DEBUG: !isProd
+      }),
+      new Dotenv(),
       new TypedCssModulesPlugin({
         globPattern: 'src/**/*.css'
       }),
