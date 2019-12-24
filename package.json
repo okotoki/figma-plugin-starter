@@ -2,7 +2,7 @@
   "name": "figma-plugin-starter",
   "version": "0.0.1",
   "description": "Yet another Figma plugin starter",
-  "repository": "https://github.com/opudalo/figma-plugin-starter",
+  "repository": "https://github.com/okotoki/figma-plugin-starter",
   "author": "Opudalo",
   "license": "BSD-3",
   "private": true,
@@ -16,6 +16,7 @@
     "@types/react": "^16.9.11",
     "@types/react-dom": "^16.9.4",
     "debug": "^4.1.1",
+    "figma-messenger": "^1.0.3",
     "react": "^16.12.0",
     "react-dom": "^16.12.0"
   },
