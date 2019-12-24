@@ -1,24 +1,24 @@
+import { createMainThreadMessenger } from 'figma-messenger'
+import { IframeToMain, MainToIframe } from 'shared/types'
+
 // This shows the HTML page in "ui.html".
 figma.showUI(__html__, {
   width: 400,
-  height: 300,
-  position: 'last'
+  height: 300
 })
 
-const serialize = ({ name, width, height }: SceneNode) => ({
-  width,
-  height,
-  name
-})
+const messenger = createMainThreadMessenger<MainToIframe, IframeToMain>()
 
-const sendSerializedSelection = (selection: readonly SceneNode[]) => {
-  const serialized = selection.map(serialize)
-  console.log('Serialized elements: ', serialized)
-  figma.ui.postMessage(JSON.stringify(serialized))
+const sendSelection = (selection: readonly SceneNode[]) => {
+  const sel = selection.map(({ name, id }) => ({
+    name,
+    id
+  }))
+
+  // Send current selection to Iframe.
+  messenger.send('selectionChanged', sel)
 }
 
-sendSerializedSelection(figma.currentPage.selection)
+sendSelection(figma.currentPage.selection)
 
-figma.on('selectionchange', () =>
-  sendSerializedSelection(figma.currentPage.selection)
-)
+figma.on('selectionchange', () => sendSelection(figma.currentPage.selection))

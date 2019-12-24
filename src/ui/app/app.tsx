@@ -1,47 +1,58 @@
+import * as debug from 'debug'
+import { createIframeMessenger } from 'figma-messenger'
 import * as React from 'react'
-import { Rect } from 'shared/types'
-import { area } from 'shared/utils'
+import { IframeToMain, Layers, MainToIframe } from 'shared/types'
 
 import * as styles from './app.css'
+import DemoWorker from './demo.worker'
+
+const log = debug('[App]')
+
+const demoWorker = new DemoWorker(undefined as any)
+
+demoWorker.postMessage('hey worker!')
+demoWorker.onmessage = data => {
+  log('message from worker received', data)
+}
+
+const messenger = createIframeMessenger<IframeToMain, MainToIframe>()
 
 export const App = () => {
-  const [rects, setRects] = React.useState<Rect[]>([])
+  const [layers, setLayers] = React.useState<Layers[]>([])
 
-  onmessage = event => {
-    const data = event.data.pluginMessage
-    const selectedElement =
-      typeof data !== 'undefined' ? (JSON.parse(data) as Rect[]) : undefined
-    console.log('Selected Elements', selectedElement)
-    if (!!selectedElement) {
-      setRects(selectedElement)
-    }
-  }
+  React.useEffect(() => {
+    // Listen for SelectionChanged message
+    messenger.on('selectionChanged', els => {
+      log('Message received from Main Thread.', els)
+      if (!!els) {
+        setLayers(els)
+      }
+    })
+
+    // unsubscribing all handlers.
+    return () => messenger.off('selectionChanged')
+  }, [])
 
   return (
     <div className={styles.container}>
-      {!!rects.length ? (
-        <>
-          <h1>
-            Total area
-            <b className={styles.total}>
-              {rects.reduce((acc, x) => acc + area(x.width, x.height), 0)} px
-              <sup>2</sup>
-            </b>
-          </h1>
-          <br />
-          <div className={styles.items}>
-            {rects.map((x, i) => {
-              return (
-                <div key={i}>
-                  {x.name}
-                  <b>{area(x.width, x.height)}</b>
-                </div>
-              )
-            })}
+      <div className={styles.header}>
+        <span className={styles.logo}></span>
+      </div>
+      {!!layers.length ? (
+        <div className={styles.items}>
+          <div style={{ borderBottom: '1px solid #3a3a3a' }}>
+            Layer Name
+            <b>Id</b>
           </div>
-        </>
+          {layers.map((x, i) => (
+            <div key={i}>
+              {x.name}
+              <b>{x.id}</b>
+            </div>
+          ))}
+        </div>
       ) : (
-        <h1>Select one or multiple elements</h1>
+        <h4 className={styles.header}>Select one or multiple elements</h4>
       )}
     </div>
   )
